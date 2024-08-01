@@ -110,7 +110,7 @@ def download_data(prefix, reaches_of_interest):
         )
         logging.info("Downloaded %s/%s to %s", config_bucket, reaches_of_interest, EFS_DIR_INPUT.joinpath(reaches_of_interest))
     
-    if not sword_patches.exists():  
+    if not SWORD_PATCHES.exists():  
         s3.download_file(
                 config_bucket, 
                 sword_patches.name, 
