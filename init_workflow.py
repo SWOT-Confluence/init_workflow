@@ -25,6 +25,7 @@ EFS_DIR_OFFLINE = pathlib.Path("/mnt/offline")
 EFS_DIR_VALIDATION = pathlib.Path("/mnt/validation")
 EFS_DIR_OUTPUT = pathlib.Path("/mnt/output")
 EFS_DIR_LOGS = pathlib.Path("/mnt/logs")
+SWORD_PATCHES = EFS_DIR_INPUT.joinpath("sword_patches_v216.json")
 
 
 logging.getLogger().setLevel(logging.INFO)
@@ -85,8 +86,8 @@ def set_up_efs():
     EFS_DIR_FLPE.joinpath("sic4dvar").mkdir(parents=True, exist_ok=True)
     
     EFS_DIR_DIAGNOSTICS.joinpath("prediagnostics").mkdir(parents=True, exist_ok=True)
-    EFS_DIR_DIAGNOSTICS.joinpath("postdiagnostcs").joinpath("basin").mkdir(parents=True, exist_ok=True)
-    EFS_DIR_DIAGNOSTICS.joinpath("postdiagnostcs").joinpath("reach").mkdir(parents=True, exist_ok=True)
+    EFS_DIR_DIAGNOSTICS.joinpath("postdiagnostics").joinpath("basin").mkdir(parents=True, exist_ok=True)
+    EFS_DIR_DIAGNOSTICS.joinpath("postdiagnostics").joinpath("reach").mkdir(parents=True, exist_ok=True)
     
     EFS_DIR_VALIDATION.joinpath("figs").mkdir(parents=True, exist_ok=True)
     
@@ -108,6 +109,14 @@ def download_data(prefix, reaches_of_interest):
             EFS_DIR_INPUT.joinpath(reaches_of_interest)
         )
         logging.info("Downloaded %s/%s to %s", config_bucket, reaches_of_interest, EFS_DIR_INPUT.joinpath(reaches_of_interest))
+    
+    if not sword_patches.exists():  
+        s3.download_file(
+                config_bucket, 
+                sword_patches.name, 
+                SWORD_PATCHES
+            )
+            logging.info("Downloaded %s/%s to %s", config_bucket, SWORD_PATCHES.name, SWORD_PATCHES)
     
     download_directory(s3, config_bucket, "gage")
     download_directory(s3, config_bucket, "sword")
