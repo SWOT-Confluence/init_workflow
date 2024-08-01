@@ -113,7 +113,7 @@ def download_data(prefix, reaches_of_interest):
     if not SWORD_PATCHES.exists():  
         s3.download_file(
                 config_bucket, 
-                sword_patches.name, 
+                SWORD_PATCHES.name, 
                 SWORD_PATCHES
             )
         logging.info("Downloaded %s/%s to %s", config_bucket, SWORD_PATCHES.name, SWORD_PATCHES)
