@@ -40,6 +40,9 @@ def init_workflow():
     args = arg_parser.parse_args()
     prefix = args.prefix
     reaches_of_interest = args.reachsubset
+    logging.info("Prefix: %s", prefix)
+    if reaches_of_interest:
+        logging.info("Reachs of interest: %s", reaches_of_interest)
     
     # Set up EFS directories
     set_up_efs()
