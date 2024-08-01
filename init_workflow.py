@@ -74,6 +74,7 @@ def set_up_efs():
     """Set up EFS directories."""
     
     EFS_DIR_INPUT.joinpath("gage").mkdir(parents=True, exist_ok=True)
+    EFS_DIR_INPUT.joinpath("gage").joinpath("Rtarget").mkdir(parents=True, exist_ok=True)
     EFS_DIR_INPUT.joinpath("sos").mkdir(parents=True, exist_ok=True)
     EFS_DIR_INPUT.joinpath("sword").mkdir(parents=True, exist_ok=True)
     EFS_DIR_INPUT.joinpath("swot").mkdir(parents=True, exist_ok=True)
