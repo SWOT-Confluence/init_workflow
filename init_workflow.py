@@ -116,7 +116,7 @@ def download_data(prefix, reaches_of_interest):
                 sword_patches.name, 
                 SWORD_PATCHES
             )
-            logging.info("Downloaded %s/%s to %s", config_bucket, SWORD_PATCHES.name, SWORD_PATCHES)
+        logging.info("Downloaded %s/%s to %s", config_bucket, SWORD_PATCHES.name, SWORD_PATCHES)
     
     download_directory(s3, config_bucket, "gage")
     download_directory(s3, config_bucket, "sword")
