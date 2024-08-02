@@ -1,8 +1,9 @@
 # init workflow
 
 Initializes Confluence workflow by:
-1) Ensuring teh EFS directories are set up
+1) Ensuring the EFS directories are set up
 2) Downloading required data for SWORD, gauges, and reaches of interest subset file (reaches of interest, gauge data, and sword)
+3) Uploading continent-setfinder.json file to JSON S3 bucket
 
 **Note only downloads gauge and sword data if it does not exist.**
 

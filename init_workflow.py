@@ -1,8 +1,9 @@
 """Initialize Confluence workflow
 
 Initializes Confluence workflow by:
-1) Ensuring teh EFS directories are set up
+1) Ensuring the EFS directories are set up
 2) Downloading required data for SWORD, gauges, and reaches of interest subset file (reaches of interest, gauge data, and sword)
+3) Uploading continent-setfinder.json file to JSON S3 bucket
 
 * Note only downloads gauge and sword data if it does not exist.
 """
@@ -111,6 +112,25 @@ def download_data(prefix, reaches_of_interest):
         )
         logging.info("Downloaded %s/%s to %s", config_bucket, reaches_of_interest, EFS_DIR_INPUT.joinpath(reaches_of_interest))
     
+    cont_setfinder = EFS_DIR_INPUT.joinpath("continent-setfinder.json")
+    s3.download_file(
+        config_bucket, 
+        "continent-setfinder.json", 
+        cont_setfinder
+    )
+    logging.info("Downloaded %s/continent-setfinder.json to %s", config_bucket, cont_setfinder)
+    
+    json_bucket = f"{prefix}-json"
+    s3.upload_file(
+        cont_setfinder,
+        json_bucket, 
+        "continent-setfinder.json",
+        ExtraArgs={
+            "ServerSideEncryption": "aws:kms"
+        }
+    )
+    logging.info("Uploaded %s to %s/continent-setfinder.json", cont_setfinder, json_bucket)
+    
     if not SWORD_PATCHES.exists():  
         s3.download_file(
                 config_bucket, 
@@ -121,15 +141,6 @@ def download_data(prefix, reaches_of_interest):
     
     download_directory(s3, config_bucket, "gage")
     download_directory(s3, config_bucket, "sword")
-    
-    json_bucket = f"{prefix}-json"
-    s3.download_file(
-        json_bucket, 
-        "continent-setfinder.json", 
-        EFS_DIR_INPUT.joinpath("continent-setfinder.json")
-    )
-    logging.info("Downloaded %s/continent-setfinder.json to %s", json_bucket, EFS_DIR_INPUT.joinpath("continent-setfinder.json"))
-
 
 def download_directory(s3, config_bucket, prefix):
     """Download all files located at prefix."""
