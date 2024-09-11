@@ -83,6 +83,7 @@ def set_up_efs():
     EFS_DIR_FLPE.joinpath("geobam").mkdir(parents=True, exist_ok=True)
     EFS_DIR_FLPE.joinpath("hivdi").mkdir(parents=True, exist_ok=True)
     EFS_DIR_FLPE.joinpath("metroman").mkdir(parents=True, exist_ok=True)
+    EFS_DIR_FLPE.joinpath("metroman").joinpath("sets").mkdir(parents=True, exist_ok=True)
     EFS_DIR_FLPE.joinpath("momma").mkdir(parents=True, exist_ok=True)
     EFS_DIR_FLPE.joinpath("sad").mkdir(parents=True, exist_ok=True)
     EFS_DIR_FLPE.joinpath("sic4dvar").mkdir(parents=True, exist_ok=True)
