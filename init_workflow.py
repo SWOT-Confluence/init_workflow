@@ -93,6 +93,7 @@ def set_up_efs():
     EFS_DIR_DIAGNOSTICS.joinpath("postdiagnostics").joinpath("reach").mkdir(parents=True, exist_ok=True)
     
     EFS_DIR_VALIDATION.joinpath("figs").mkdir(parents=True, exist_ok=True)
+    EFS_DIR_VALIDATION.joinpath("stats").mkdir(parents=True, exist_ok=True)
     
     EFS_DIR_OUTPUT.joinpath("sos").mkdir(parents=True, exist_ok=True)
     
