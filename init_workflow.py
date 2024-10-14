@@ -26,6 +26,7 @@ EFS_DIR_OFFLINE = pathlib.Path("/mnt/offline")
 EFS_DIR_VALIDATION = pathlib.Path("/mnt/validation")
 EFS_DIR_OUTPUT = pathlib.Path("/mnt/output")
 EFS_DIR_LOGS = pathlib.Path("/mnt/logs")
+S3 = boto3.client("s3")
 SWORD_PATCHES = EFS_DIR_INPUT.joinpath("sword_patches_v216.json")
 
 
@@ -40,8 +41,10 @@ def init_workflow():
     
     arg_parser = create_args()
     args = arg_parser.parse_args()
+    delete_map_state = args.deletemap
     prefix = args.prefix
     reaches_of_interest = args.reachsubset
+    logging.info("Delete map state from S3: %s", delete_map_state)
     logging.info("Prefix: %s", prefix)
     if reaches_of_interest:
         logging.info("Reachs of interest: %s", reaches_of_interest)
@@ -53,6 +56,11 @@ def init_workflow():
     # Download required data
     download_data(prefix, reaches_of_interest)
     logging.info("Downloaded required input data.")
+
+    # Remove map state data
+    if delete_map_state:
+        s3_map = f"{prefix}-map-state"
+        delete_s3_map_state(s3_map)
 
 
 def create_args():
@@ -68,18 +76,22 @@ def create_args():
                             type=str,
                             default="",
                             help="Name of reaches of interest file to subset reaches.")
+    arg_parser.add_argument("-d",
+                            "--deletemap",
+                            action="store_true",
+                            help="Indicator to delete S3 map state bucket.")
     return arg_parser
 
 
 def set_up_efs():
     """Set up EFS directories."""
-    
+
     EFS_DIR_INPUT.joinpath("gage").mkdir(parents=True, exist_ok=True)
     EFS_DIR_INPUT.joinpath("gage").joinpath("Rtarget").mkdir(parents=True, exist_ok=True)
     EFS_DIR_INPUT.joinpath("sos").mkdir(parents=True, exist_ok=True)
     EFS_DIR_INPUT.joinpath("sword").mkdir(parents=True, exist_ok=True)
     EFS_DIR_INPUT.joinpath("swot").mkdir(parents=True, exist_ok=True)
-    
+
     EFS_DIR_FLPE.joinpath("geobam").mkdir(parents=True, exist_ok=True)
     EFS_DIR_FLPE.joinpath("hivdi").mkdir(parents=True, exist_ok=True)
     EFS_DIR_FLPE.joinpath("metroman").mkdir(parents=True, exist_ok=True)
@@ -87,43 +99,41 @@ def set_up_efs():
     EFS_DIR_FLPE.joinpath("momma").mkdir(parents=True, exist_ok=True)
     EFS_DIR_FLPE.joinpath("sad").mkdir(parents=True, exist_ok=True)
     EFS_DIR_FLPE.joinpath("sic4dvar").mkdir(parents=True, exist_ok=True)
-    
+
     EFS_DIR_DIAGNOSTICS.joinpath("prediagnostics").mkdir(parents=True, exist_ok=True)
     EFS_DIR_DIAGNOSTICS.joinpath("postdiagnostics").joinpath("basin").mkdir(parents=True, exist_ok=True)
     EFS_DIR_DIAGNOSTICS.joinpath("postdiagnostics").joinpath("reach").mkdir(parents=True, exist_ok=True)
-    
+
     EFS_DIR_VALIDATION.joinpath("figs").mkdir(parents=True, exist_ok=True)
     EFS_DIR_VALIDATION.joinpath("stats").mkdir(parents=True, exist_ok=True)
-    
+
     EFS_DIR_OUTPUT.joinpath("sos").mkdir(parents=True, exist_ok=True)
-    
+
     EFS_DIR_LOGS.joinpath("sic4dvar").mkdir(parents=True, exist_ok=True)
 
 
 def download_data(prefix, reaches_of_interest):
     """Download data needed to run the Confluence workflow."""
-    
-    s3 = boto3.client("s3")
-    
+
     config_bucket = f"{prefix}-config"
     if reaches_of_interest:
-        s3.download_file(
+        S3.download_file(
             config_bucket, 
             reaches_of_interest, 
             EFS_DIR_INPUT.joinpath(reaches_of_interest)
         )
         logging.info("Downloaded %s/%s to %s", config_bucket, reaches_of_interest, EFS_DIR_INPUT.joinpath(reaches_of_interest))
-    
+
     cont_setfinder = EFS_DIR_INPUT.joinpath("continent-setfinder.json")
-    s3.download_file(
+    S3.download_file(
         config_bucket, 
         "continent-setfinder.json", 
         cont_setfinder
     )
     logging.info("Downloaded %s/continent-setfinder.json to %s", config_bucket, cont_setfinder)
-    
+
     json_bucket = f"{prefix}-json"
-    s3.upload_file(
+    S3.upload_file(
         cont_setfinder,
         json_bucket, 
         "continent-setfinder.json",
@@ -132,22 +142,23 @@ def download_data(prefix, reaches_of_interest):
         }
     )
     logging.info("Uploaded %s to %s/continent-setfinder.json", cont_setfinder, json_bucket)
-    
+
     if not SWORD_PATCHES.exists():  
-        s3.download_file(
+        S3.download_file(
                 config_bucket, 
                 SWORD_PATCHES.name, 
                 SWORD_PATCHES
             )
         logging.info("Downloaded %s/%s to %s", config_bucket, SWORD_PATCHES.name, SWORD_PATCHES)
-    
-    download_directory(s3, config_bucket, "gage")
-    download_directory(s3, config_bucket, "sword")
 
-def download_directory(s3, config_bucket, prefix):
+    download_directory(config_bucket, "gage")
+    download_directory(config_bucket, "sword")
+
+
+def download_directory(config_bucket, prefix):
     """Download all files located at prefix."""
-    
-    paginator = s3.get_paginator('list_objects_v2')
+
+    paginator = S3.get_paginator('list_objects_v2')
     page_iterator = paginator.paginate(
         Bucket=config_bucket,
         Prefix=prefix
@@ -156,7 +167,7 @@ def download_directory(s3, config_bucket, prefix):
     for item in items:
         efs_file = EFS_DIR_INPUT.joinpath(item)
         if not efs_file.exists():
-            s3.download_file(
+            S3.download_file(
                 config_bucket, 
                 item,
                 efs_file
@@ -164,6 +175,20 @@ def download_directory(s3, config_bucket, prefix):
             logging.info("Downloaded %s/%s to %s", config_bucket, item, efs_file)
         else:
             logging.info("Not downloading %s", efs_file)
+
+
+def delete_s3_map_state(s3_map):
+    """Delete S3 Map State bucket contents."""
+
+    paginator = S3.get_paginator('list_objects_v2')
+    page_iterator = paginator.paginate(
+        Bucket=s3_map
+    )
+    key_count = list(page_iterator)[0]["KeyCount"]
+    if key_count > 0:
+        items = { "Objects": [ {"Key": key["Key"] } for page in page_iterator for key in page["Contents"]]}
+        S3.delete_objects(Bucket=s3_map, Delete=items)
+        for item in items["Objects"]: logging.info("Deleted s3://%s/%s", s3_map, item["Key"])
 
 
 if __name__ == "__main__":
