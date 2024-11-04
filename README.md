@@ -7,8 +7,7 @@ Initializes Confluence workflow by:
 
 **Note only downloads gauge and sword data if it does not exist.**
 
-This is a docker container meant to be run as an AWS Batch job after the input
-module.
+This is a docker container meant to be run as an AWS Batch job after the input module.
 
 ## installation
 
