@@ -13,21 +13,29 @@
 # [2] repository: Name of repository to create
 # [3] prefix: Prefix to use for AWS resources associated with environment deploying to
 # [4] s3_state_bucket: Name of the S3 bucket to store Terraform state in (no need for s3:// prefix)
-# [5] profile: Name of profile used to authenticate AWS CLI commands
+#
+# Note, you need to be "logged in" via `aws configure` in order to deploy to AWS
 # 
-# Example usage: ./deploy.sh "account-id.dkr.ecr.region.amazonaws.com" "container-image-name" "prefix-for-environment" "s3-state-bucket-name" "confluence-named-profile" 
+# Example usage: ./deploy.sh "account-id.dkr.ecr.region.amazonaws.com" "container-image-name" "prefix-for-environment" "s3-state-bucket-name"
 
 REGISTRY=$1
-REPOSITORY=$2
+NAME=$2
 PREFIX=$3
 S3_STATE=$4
-PROFILE=$5
+
+REPOSITORY=$PREFIX-$NAME
 
 # Deploy Container Image
-./deploy-ecr.sh $REGISTRY $REPOSITORY $PREFIX $PROFILE
+echo "./deploy-ecr.sh $REGISTRY $REPOSITORY"
+./deploy-ecr.sh $REGISTRY $REPOSITORY
 
 # Deploy Terraform
 cd terraform/
-terraform init -reconfigure -backend-config="bucket=$S3_STATE" -backend-config="key=init_workflow.tfstate" -backend-config="region=us-west-2" -backend-config="profile=$PROFILE"
-terraform apply -var-file="conf.tfvars" -auto-approve
+
+export TF_VAR_environment="DEV1"
+export TF_VAR_prefix="confluence-dev1"
+
+terraform init -reconfigure -backend-config="bucket=$S3_STATE" -backend-config="key=init-workflow.tfstate" -backend-config="region=us-west-2"
+terraform apply -auto-approve
+
 cd ..
