@@ -35,21 +35,21 @@ jobs:
 
       # DEV1 environment variables
       - name: Set Environment Variables
-        if: ${{ github.event.inputs.venue }} == "DEV1"
+        if: github.event.inputs.venue == 'DEV1'
         run: |
           echo "TARGET_ENV=DEV1" >> $GITHUB_ENV
           echo "PREFIX_ENV=confluence-dev1" >> $GITHUB_ENV
       
       # DEV2 environment variables
       - name: Set Environment Variables
-        if: ${{ github.event.inputs.venue }} == "DEV2"
+        if: github.event.inputs.venue == 'DEV2'
         run: |
           echo "TARGET_ENV=DEV2" >> $GITHUB_ENV
           echo "PREFIX_ENV=confluence-dev2" >> $GITHUB_ENV
 
       # OPS environment variables
       - name: Set Environment Variables
-        if: ${{ github.event.inputs.venue }} == "OPS"
+        if: github.event.inputs.venue == 'OPS'
         run: |
           echo "TARGET_ENV=OPS" >> $GITHUB_ENV
           echo "PREFIX_ENV=confluence-ops" >> $GITHUB_ENV
