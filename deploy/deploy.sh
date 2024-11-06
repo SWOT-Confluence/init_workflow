@@ -26,8 +26,10 @@ S3_STATE=$4
 REPOSITORY=$PREFIX-$NAME
 
 # Deploy Container Image
+cd deploy/
 echo "./deploy-ecr.sh $REGISTRY $REPOSITORY"
 ./deploy-ecr.sh $REGISTRY $REPOSITORY
+cd ..
 
 # Deploy Terraform
 cd terraform/
