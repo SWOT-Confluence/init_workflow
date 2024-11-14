@@ -98,6 +98,7 @@ jobs:
           aws-access-key-id: ${{ secrets[format('AWS_ACCESS_KEY_ID_{0}', env.TARGET_ENV)] }}
           aws-secret-access-key: ${{ secrets[format('AWS_SECRET_ACCESS_KEY_{0}', env.TARGET_ENV)] }}
           aws-region: us-west-2
+          mask-aws-account-id: true
 
       # Login and define registry, repository, and tag names
       - name: Login to AWS ECR
@@ -129,6 +130,7 @@ jobs:
         run: |
           echo "TF_VAR_environment=$TARGET_ENV" >> $GITHUB_ENV
           echo "TF_VAR_prefix=$PREFIX_ENV" >> $GITHUB_ENV
+          echo "TF_IN_AUTOMATION=true" >> $GITHUB_ENV
 
       - name: Initialize Terraform
         working-directory: terraform/
