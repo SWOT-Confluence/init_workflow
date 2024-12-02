@@ -33,8 +33,6 @@ cd ..
 
 # Deploy Terraform
 cd terraform/
-
 terraform init -reconfigure -backend-config="bucket=$S3_STATE" -backend-config="key=init-workflow.tfstate" -backend-config="region=us-west-2"
 terraform apply -auto-approve
-
 cd ..
