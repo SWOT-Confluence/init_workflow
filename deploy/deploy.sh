@@ -34,9 +34,6 @@ cd ..
 # Deploy Terraform
 cd terraform/
 
-export TF_VAR_environment="DEV1"
-export TF_VAR_prefix="confluence-dev1"
-
 terraform init -reconfigure -backend-config="bucket=$S3_STATE" -backend-config="key=init-workflow.tfstate" -backend-config="region=us-west-2"
 terraform apply -auto-approve
 
