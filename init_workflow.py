@@ -41,10 +41,8 @@ def init_workflow():
     
     arg_parser = create_args()
     args = arg_parser.parse_args()
-    delete_map_state = args.deletemap
     prefix = args.prefix
     reaches_of_interest = args.reachsubset
-    logging.info("Delete map state from S3: %s", delete_map_state)
     logging.info("Prefix: %s", prefix)
     if reaches_of_interest:
         logging.info("Reachs of interest: %s", reaches_of_interest)
