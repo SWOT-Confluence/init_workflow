@@ -57,11 +57,6 @@ def init_workflow():
     download_data(prefix, reaches_of_interest)
     logging.info("Downloaded required input data.")
 
-    # Remove map state data
-    if delete_map_state:
-        s3_map = f"{prefix}-map-state"
-        delete_s3_map_state(s3_map)
-
 
 def create_args():
     """Create and return argparser with arguments."""
@@ -76,10 +71,6 @@ def create_args():
                             type=str,
                             default="",
                             help="Name of reaches of interest file to subset reaches.")
-    arg_parser.add_argument("-d",
-                            "--deletemap",
-                            action="store_true",
-                            help="Indicator to delete S3 map state bucket.")
     return arg_parser
 
 
@@ -175,20 +166,6 @@ def download_directory(config_bucket, prefix):
             logging.info("Downloaded %s/%s to %s", config_bucket, item, efs_file)
         else:
             logging.info("Not downloading %s", efs_file)
-
-
-def delete_s3_map_state(s3_map):
-    """Delete S3 Map State bucket contents."""
-
-    paginator = S3.get_paginator('list_objects_v2')
-    page_iterator = paginator.paginate(
-        Bucket=s3_map
-    )
-    key_count = list(page_iterator)[0]["KeyCount"]
-    if key_count > 0:
-        items = { "Objects": [ {"Key": key["Key"] } for page in page_iterator for key in page["Contents"]]}
-        S3.delete_objects(Bucket=s3_map, Delete=items)
-        for item in items["Objects"]: logging.info("Deleted s3://%s/%s", s3_map, item["Key"])
 
 
 if __name__ == "__main__":
