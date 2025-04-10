@@ -17,7 +17,7 @@ concurrency:
 
 # Environment variables
 env:
-  APP_NAME_ENV: 'init-workflow'
+  IMAGE_NAME: ${{ github.repository }}
   POETRY_VERSION: "2.1.1"
   PYTHON_VERSION: "3.10"
   REGISTRY: ghcr.io
@@ -47,7 +47,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.APP_NAME_ENV }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=pep440,pattern={{version}},value=${{ env.APP_VERSION }}
           flavor: |
