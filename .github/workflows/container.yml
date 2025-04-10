@@ -5,13 +5,6 @@ on:
   # Run workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
-      venue:
-        type: choice
-        description: Venue to deploy to
-        options:
-          - DEV1
-          - DEV2
-          - OPS
       version:
         type: string
         description: Application version to build container image for
@@ -36,7 +29,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       APP_VERSION: ${{ github.event.inputs.version }}
-      TARGET_ENV: ${{ github.event.inputs.venue }}
     steps:
       # Check out GitHub repo
       - uses: actions/checkout@v4
