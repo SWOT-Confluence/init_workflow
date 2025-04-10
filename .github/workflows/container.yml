@@ -28,7 +28,6 @@ env:
   POETRY_VERSION: "2.1.1"
   PYTHON_VERSION: "3.10"
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   container:
@@ -56,18 +55,13 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.APP_NAME_ENV }}
           tags: |
             type=pep440,pattern={{version}},value=${{ env.APP_VERSION }}
           flavor: |
             latest=true
 
       - name: Build and push Docker image
-        if: |
-          github.ref == 'refs/heads/develop' ||
-          github.ref == 'refs/heads/main'    ||
-          startsWith(github.ref, 'refs/heads/release') ||
-          github.event_name == 'workflow_dispatch'
         uses: docker/build-push-action@v5
         with:
           context: .
