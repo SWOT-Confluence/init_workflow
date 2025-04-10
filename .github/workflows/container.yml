@@ -1,5 +1,5 @@
 # Main build pipeline that verifies, builds, and deploys the software
-name: Build and Deploy
+name: Build Docker image (ghcr.io)
 # Events that trigger the workflow
 on:
   # Run workflow manually from the Actions tab
