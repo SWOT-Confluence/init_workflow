@@ -132,7 +132,7 @@ jobs:
       
       - name: Define TF_VAR values
         run: |
-          echo "TF_VAR_app_version=${{ github.event.inputs.version }}"
+          echo "TF_VAR_app_version=${{ github.event.inputs.version }}" >> $GITHUB_ENV
           echo "TF_VAR_environment=$TARGET_ENV" >> $GITHUB_ENV
           echo "TF_VAR_prefix=$PREFIX_ENV" >> $GITHUB_ENV
           echo "TF_IN_AUTOMATION=true" >> $GITHUB_ENV
