@@ -28,7 +28,7 @@ locals {
   } : var.default_tags
 }
 
-module "confluence-terraform" {
+module "confluence-init-workflow" {
   source            = "./modules/init"
   app_name          = var.app_name
   app_version       = var.app_version
