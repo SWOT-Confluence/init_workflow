@@ -167,7 +167,13 @@ def download_directory(config_bucket, prefix, efs_dir):
         Bucket=config_bucket,
         Prefix=prefix
     )
-    items = [key["Key"] for page in page_iterator for key in page["Contents"]]
+
+    items = []
+    for page in page_iterator:
+        if page.get("Contents", None):
+            for content in page.get("Contents"):
+                items.append(content["Key"])
+
     for item in items:
         efs_file = efs_dir.joinpath(item)
         if not efs_file.exists():
@@ -180,6 +186,9 @@ def download_directory(config_bucket, prefix, efs_dir):
             logging.info("Downloaded %s/%s to %s", config_bucket, item, efs_file)
         else:
             logging.info("Not downloading %s", efs_file)
+
+    if len(items) == 0:
+        logging.info("No items detected for %s/%s", config_bucket, prefix)
 
 
 if __name__ == "__main__":
