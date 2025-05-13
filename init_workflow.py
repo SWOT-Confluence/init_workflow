@@ -77,6 +77,7 @@ def set_up_efs():
 
     EFS_DIR_INPUT.joinpath("gage").mkdir(parents=True, exist_ok=True)
     EFS_DIR_INPUT.joinpath("gage").joinpath("Rtarget").mkdir(parents=True, exist_ok=True)
+    EFS_DIR_INPUT.joinpath("ssc", "model_static_files").mkdir(parents=True, exist_ok=True)
     EFS_DIR_INPUT.joinpath("sos").mkdir(parents=True, exist_ok=True)
     EFS_DIR_INPUT.joinpath("sword").mkdir(parents=True, exist_ok=True)
     EFS_DIR_INPUT.joinpath("swot").mkdir(parents=True, exist_ok=True)
@@ -88,6 +89,7 @@ def set_up_efs():
     EFS_DIR_FLPE.joinpath("momma").mkdir(parents=True, exist_ok=True)
     EFS_DIR_FLPE.joinpath("sad").mkdir(parents=True, exist_ok=True)
     EFS_DIR_FLPE.joinpath("sic4dvar").mkdir(parents=True, exist_ok=True)
+    EFS_DIR_FLPE.joinpath("ssc").mkdir(parents=True, exist_ok=True)
 
     EFS_DIR_DIAGNOSTICS.joinpath("prediagnostics").mkdir(parents=True, exist_ok=True)
     EFS_DIR_DIAGNOSTICS.joinpath("postdiagnostics").joinpath("basin").mkdir(parents=True, exist_ok=True)
@@ -105,13 +107,26 @@ def download_data(prefix, reaches_of_interest):
     """Download data needed to run the Confluence workflow."""
 
     config_bucket = f"{prefix}-config"
+    json_bucket = f"{prefix}-json"
+
     if reaches_of_interest:
+        roi = EFS_DIR_INPUT.joinpath(reaches_of_interest)
         S3.download_file(
             config_bucket, 
             reaches_of_interest, 
-            EFS_DIR_INPUT.joinpath(reaches_of_interest)
+            roi
         )
         logging.info("Downloaded %s/%s to %s", config_bucket, reaches_of_interest, EFS_DIR_INPUT.joinpath(reaches_of_interest))
+
+        S3.upload_file(
+            roi,
+            json_bucket, 
+            reaches_of_interest,
+            ExtraArgs={
+                "ServerSideEncryption": "aws:kms"
+            }
+        )
+        logging.info("Uploaded %s to %s/%s", roi, json_bucket, reaches_of_interest)
 
     cont_setfinder = EFS_DIR_INPUT.joinpath("continent-setfinder.json")
     S3.download_file(
@@ -121,7 +136,6 @@ def download_data(prefix, reaches_of_interest):
     )
     logging.info("Downloaded %s/continent-setfinder.json to %s", config_bucket, cont_setfinder)
 
-    json_bucket = f"{prefix}-json"
     S3.upload_file(
         cont_setfinder,
         json_bucket, 
@@ -140,11 +154,12 @@ def download_data(prefix, reaches_of_interest):
             )
         logging.info("Downloaded %s/%s to %s", config_bucket, SWORD_PATCHES.name, SWORD_PATCHES)
 
-    download_directory(config_bucket, "gage")
-    download_directory(config_bucket, "sword")
+    download_directory(config_bucket, "gage", EFS_DIR_INPUT)
+    download_directory(config_bucket, "sword", EFS_DIR_INPUT)
+    download_directory(config_bucket, "ssc", EFS_DIR_INPUT)
 
 
-def download_directory(config_bucket, prefix):
+def download_directory(config_bucket, prefix, efs_dir):
     """Download all files located at prefix."""
 
     paginator = S3.get_paginator('list_objects_v2')
@@ -152,10 +167,17 @@ def download_directory(config_bucket, prefix):
         Bucket=config_bucket,
         Prefix=prefix
     )
-    items = [key["Key"] for page in page_iterator for key in page["Contents"]]
+
+    items = []
+    for page in page_iterator:
+        if page.get("Contents", None):
+            for content in page.get("Contents"):
+                items.append(content["Key"])
+
     for item in items:
-        efs_file = EFS_DIR_INPUT.joinpath(item)
+        efs_file = efs_dir.joinpath(item)
         if not efs_file.exists():
+            efs_file.parent.mkdir(parents=True, exist_ok=True)
             S3.download_file(
                 config_bucket, 
                 item,
@@ -164,6 +186,9 @@ def download_directory(config_bucket, prefix):
             logging.info("Downloaded %s/%s to %s", config_bucket, item, efs_file)
         else:
             logging.info("Not downloading %s", efs_file)
+
+    if len(items) == 0:
+        logging.info("No items detected for %s/%s", config_bucket, prefix)
 
 
 if __name__ == "__main__":
