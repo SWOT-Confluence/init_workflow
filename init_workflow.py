@@ -78,6 +78,7 @@ def set_up_efs():
     EFS_DIR_INPUT.joinpath("gage").mkdir(parents=True, exist_ok=True)
     EFS_DIR_INPUT.joinpath("gage").joinpath("Rtarget").mkdir(parents=True, exist_ok=True)
     EFS_DIR_INPUT.joinpath("ssc", "model_static_files").mkdir(parents=True, exist_ok=True)
+    EFS_DIR_INPUT.joinpath("lakeflow", "ancillary").mkdir(parents=True, exist_ok=True)
     EFS_DIR_INPUT.joinpath("sos").mkdir(parents=True, exist_ok=True)
     EFS_DIR_INPUT.joinpath("sword").mkdir(parents=True, exist_ok=True)
     EFS_DIR_INPUT.joinpath("swot").mkdir(parents=True, exist_ok=True)
@@ -90,6 +91,7 @@ def set_up_efs():
     EFS_DIR_FLPE.joinpath("sad").mkdir(parents=True, exist_ok=True)
     EFS_DIR_FLPE.joinpath("sic4dvar").mkdir(parents=True, exist_ok=True)
     EFS_DIR_FLPE.joinpath("ssc").mkdir(parents=True, exist_ok=True)
+    EFS_DIR_FLPE.joinpath("lakeflow").mkdir(parents=True, exist_ok=True)
 
     EFS_DIR_DIAGNOSTICS.joinpath("prediagnostics").mkdir(parents=True, exist_ok=True)
     EFS_DIR_DIAGNOSTICS.joinpath("postdiagnostics").joinpath("basin").mkdir(parents=True, exist_ok=True)
@@ -157,6 +159,7 @@ def download_data(prefix, reaches_of_interest):
     download_directory(config_bucket, "gage", EFS_DIR_INPUT)
     download_directory(config_bucket, "sword", EFS_DIR_INPUT)
     download_directory(config_bucket, "ssc", EFS_DIR_INPUT)
+    download_directory(config_bucket, "lakeflow", EFS_DIR_INPUT)
 
 
 def download_directory(config_bucket, prefix, efs_dir):
