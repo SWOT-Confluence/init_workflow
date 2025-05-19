@@ -6,7 +6,7 @@ resource "aws_batch_job_definition" "generate_batch_jd_init_workflow" {
   propagate_tags = true
   tags = { "job_definition": "${var.prefix}-init-workflow" }
 
-  container_properties  = jsonencode({
+  container_properties = jsonencode({
     image = "${local.account_id}.dkr.ecr.us-west-2.amazonaws.com/${var.prefix}-init-workflow:${var.image_tag}"
     executionRoleArn = var.iam_execution_role_arn
     jobRoleArn = var.iam_job_role_arn
