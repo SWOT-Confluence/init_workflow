@@ -1,7 +1,10 @@
 # Job Definition
 resource "aws_batch_job_definition" "generate_batch_jd_init_workflow" {
-  name                  = "${var.prefix}-init-workflow"
-  type                  = "container"
+  name = "${var.prefix}-init-workflow"
+  type = "container"
+  platform_capabilities = ["FARGATE"]
+  propagate_tags = true
+  tags = { "job_definition": "${var.prefix}-init-workflow" }
 
   container_properties  = jsonencode({
     image = "${local.account_id}.dkr.ecr.us-west-2.amazonaws.com/${var.prefix}-init-workflow:${var.image_tag}"
@@ -90,10 +93,6 @@ resource "aws_batch_job_definition" "generate_batch_jd_init_workflow" {
       }
     }]
   })
-
-  platform_capabilities = ["FARGATE"]
-  propagate_tags        = true
-  tags = { "job_definition": "${var.prefix}-init-workflow" }
 }
 
 # Log group
