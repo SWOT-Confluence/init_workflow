@@ -19,39 +19,35 @@ provider "aws" {
 
 data "aws_caller_identity" "current" {}
 
-data "aws_cloudwatch_log_group" "cw_log_group" {
-  name = "/aws/batch/job/${var.prefix}-init-workflow/"
-}
-
-data "aws_efs_file_system" "aws_efs_input" {
+data "aws_efs_file_system" "input" {
   creation_token = "${var.prefix}-input"
 }
 
-data "aws_efs_file_system" "aws_efs_flpe" {
+data "aws_efs_file_system" "flpe" {
   creation_token = "${var.prefix}-flpe"
 }
 
-data "aws_efs_file_system" "aws_efs_moi" {
+data "aws_efs_file_system" "moi" {
   creation_token = "${var.prefix}-moi"
 }
 
-data "aws_efs_file_system" "aws_efs_diagnostics" {
+data "aws_efs_file_system" "diagnostics" {
   creation_token = "${var.prefix}-diagnostics"
 }
 
-data "aws_efs_file_system" "aws_efs_offline" {
+data "aws_efs_file_system" "offline" {
   creation_token = "${var.prefix}-offline"
 }
 
-data "aws_efs_file_system" "aws_efs_validation" {
+data "aws_efs_file_system" "validation" {
   creation_token = "${var.prefix}-validation"
 }
 
-data "aws_efs_file_system" "aws_efs_output" {
+data "aws_efs_file_system" "output" {
   creation_token = "${var.prefix}-output"
 }
 
-data "aws_efs_file_system" "aws_efs_logs" {
+data "aws_efs_file_system" "logs" {
   creation_token = "${var.prefix}-logs"
 }
 
@@ -78,15 +74,17 @@ module "confluence-init-workflow" {
   app_version = var.app_version
   aws_region = var.aws_region
   efs_file_system_ids = {
-    input = data.aws_efs_file_system.aws_efs_input.file_system_id
+    input = data.aws_efs_file_system.input.file_system_id
     flpe = data.aws_efs_file_system.flpe.file_system_id
     moi = data.aws_efs_file_system.moi.file_system_id
     diagnostics = data.aws_efs_file_system.diagnostics.file_system_id
     offline = data.aws_efs_file_system.offline.file_system_id
     logs = data.aws_efs_file_system.logs.file_system_id
+    validation = data.aws_efs_file_system.validation.file_system_id
+    output = data.aws_efs_file_system.output.file_system_id
   }
   environment = var.environment
-  iam_execution_role_arn = data.aws_iam_role.exec.arn
-  iam_job_role_arn = data.aws_iam_role.job.arn
+  iam_execution_role_arn = data.aws_iam_role.exe_role.arn
+  iam_job_role_arn = data.aws_iam_role.job_role.arn
   prefix = var.prefix
 }
