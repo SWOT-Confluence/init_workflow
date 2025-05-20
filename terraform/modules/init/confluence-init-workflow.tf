@@ -38,6 +38,11 @@ resource "aws_batch_job_definition" "generate_batch_jd_init_workflow" {
       sourceVolume = "moi"
       containerPath = "/mnt/moi"
       readOnly = false
+    }, 
+    {
+      sourceVolume = "diagnostics"
+      containerPath = "/mnt/diagnostics"
+      readOnly = false
     }, {
       sourceVolume = "offline"
       containerPath = "/mnt/offline"
@@ -86,6 +91,12 @@ resource "aws_batch_job_definition" "generate_batch_jd_init_workflow" {
         rootDirectory = "/"
       }
     }, {
+      name = "validation"
+      efsVolumeConfiguration = {
+        fileSystemId = var.efs_file_system_ids["validation"]
+        rootDirectory = "/"
+      }
+    },{
       name = "logs"
       efsVolumeConfiguration = {
         fileSystemId = var.efs_file_system_ids["logs"]
