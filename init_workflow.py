@@ -160,6 +160,7 @@ def download_data(prefix, reaches_of_interest):
     download_directory(config_bucket, "sword", EFS_DIR_INPUT)
     download_directory(config_bucket, "ssc", EFS_DIR_INPUT)
     download_directory(config_bucket, "lakeflow", EFS_DIR_INPUT)
+    download_directory(config_bucket, "sos", EFS_DIR_INPUT)
 
 
 def download_directory(config_bucket, prefix, efs_dir):
