@@ -38,7 +38,7 @@ logging.basicConfig(format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(messa
 
 def init_workflow():
     """Initialize the confluence workflow."""
-    
+
     arg_parser = create_args()
     args = arg_parser.parse_args()
     prefix = args.prefix
@@ -46,11 +46,11 @@ def init_workflow():
     logging.info("Prefix: %s", prefix)
     if reaches_of_interest:
         logging.info("Reachs of interest: %s", reaches_of_interest)
-    
+
     # Set up EFS directories
     set_up_efs()
     logging.info("Set up the EFS directories.")
-    
+
     # Download required data
     download_data(prefix, reaches_of_interest)
     logging.info("Downloaded required input data.")
@@ -82,6 +82,8 @@ def set_up_efs():
     EFS_DIR_INPUT.joinpath("sos").mkdir(parents=True, exist_ok=True)
     EFS_DIR_INPUT.joinpath("sword").mkdir(parents=True, exist_ok=True)
     EFS_DIR_INPUT.joinpath("swot").mkdir(parents=True, exist_ok=True)
+    EFS_DIR_INPUT.joinpath("ssc/model_static_files/nd_20250430/gl_20250522_2_m1").mkdir(parents=True, exist_ok=True)
+    EFS_DIR_INPUT.joinpath("ssc/model_static_files/nd_20250430/gl_20250522_2_m2").mkdir(parents=True, exist_ok=True)
 
     EFS_DIR_FLPE.joinpath("geobam").mkdir(parents=True, exist_ok=True)
     EFS_DIR_FLPE.joinpath("hivdi").mkdir(parents=True, exist_ok=True)
@@ -114,15 +116,15 @@ def download_data(prefix, reaches_of_interest):
     if reaches_of_interest:
         roi = EFS_DIR_INPUT.joinpath(reaches_of_interest)
         S3.download_file(
-            config_bucket, 
-            reaches_of_interest, 
+            config_bucket,
+            reaches_of_interest,
             roi
         )
         logging.info("Downloaded %s/%s to %s", config_bucket, reaches_of_interest, EFS_DIR_INPUT.joinpath(reaches_of_interest))
 
         S3.upload_file(
             roi,
-            json_bucket, 
+            json_bucket,
             reaches_of_interest,
             ExtraArgs={
                 "ServerSideEncryption": "aws:kms"
@@ -132,15 +134,15 @@ def download_data(prefix, reaches_of_interest):
 
     cont_setfinder = EFS_DIR_INPUT.joinpath("continent-setfinder.json")
     S3.download_file(
-        config_bucket, 
-        "continent-setfinder.json", 
+        config_bucket,
+        "continent-setfinder.json",
         cont_setfinder
     )
     logging.info("Downloaded %s/continent-setfinder.json to %s", config_bucket, cont_setfinder)
 
     S3.upload_file(
         cont_setfinder,
-        json_bucket, 
+        json_bucket,
         "continent-setfinder.json",
         ExtraArgs={
             "ServerSideEncryption": "aws:kms"
@@ -148,10 +150,10 @@ def download_data(prefix, reaches_of_interest):
     )
     logging.info("Uploaded %s to %s/continent-setfinder.json", cont_setfinder, json_bucket)
 
-    if not SWORD_PATCHES.exists():  
+    if not SWORD_PATCHES.exists():
         S3.download_file(
-                config_bucket, 
-                SWORD_PATCHES.name, 
+                config_bucket,
+                SWORD_PATCHES.name,
                 SWORD_PATCHES
             )
         logging.info("Downloaded %s/%s to %s", config_bucket, SWORD_PATCHES.name, SWORD_PATCHES)
@@ -183,7 +185,7 @@ def download_directory(config_bucket, prefix, efs_dir):
         if not efs_file.exists():
             efs_file.parent.mkdir(parents=True, exist_ok=True)
             S3.download_file(
-                config_bucket, 
+                config_bucket,
                 item,
                 efs_file
             )
@@ -196,4 +198,4 @@ def download_directory(config_bucket, prefix, efs_dir):
 
 
 if __name__ == "__main__":
-    init_workflow()
+    init_workflow(
