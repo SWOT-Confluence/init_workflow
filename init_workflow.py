@@ -150,6 +150,15 @@ def download_data(prefix, reaches_of_interest):
     )
     logging.info("Uploaded %s to %s/continent-setfinder.json", cont_setfinder, json_bucket)
 
+    cont_setfinder = EFS_DIR_INPUT.joinpath("continent.json")
+    S3.download_file(
+        config_bucket,
+        "continent.json",
+        cont_setfinder
+    )
+    logging.info("Downloaded %s/continent.json to %s", config_bucket, cont_setfinder)
+
+
     if not SWORD_PATCHES.exists():
         S3.download_file(
                 config_bucket,
@@ -198,4 +207,4 @@ def download_directory(config_bucket, prefix, efs_dir):
 
 
 if __name__ == "__main__":
-    init_workflow(
+    init_workflow()
