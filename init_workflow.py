@@ -85,6 +85,7 @@ def set_up_efs():
     EFS_DIR_INPUT.joinpath("ssc/model_static_files/nd_20250430/gl_20250522_2_m1").mkdir(parents=True, exist_ok=True)
     EFS_DIR_INPUT.joinpath("ssc/model_static_files/nd_20250430/gl_20250522_2_m2").mkdir(parents=True, exist_ok=True)
 
+    EFS_DIR_FLPE.joinpath("busboi").mkdir(parents=True, exist_ok=True)
     EFS_DIR_FLPE.joinpath("geobam").mkdir(parents=True, exist_ok=True)
     EFS_DIR_FLPE.joinpath("hivdi").mkdir(parents=True, exist_ok=True)
     EFS_DIR_FLPE.joinpath("metroman").mkdir(parents=True, exist_ok=True)
